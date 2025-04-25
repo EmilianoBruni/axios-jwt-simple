@@ -16,7 +16,7 @@ const interceptJwtRequest = async (
 
     const sRT = ajs.sS.getRefreshToken();
 
-    if (config.url === ajs.pathRefresh && sRT.v) {
+    if (config.url === ajs.pathRefresh && ajs.sS.isRefreshTokenValid()) {
         // add bearer token to get new access token
         config.headers['Authorization'] = `Bearer ${sRT.v}`;
         let lconfig = config;
