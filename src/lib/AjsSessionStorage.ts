@@ -71,7 +71,10 @@ export default class AjsSessionStorage {
             }
             return null;
         } catch (error) {
-            console.error('Error extracting expiration date from token:', error);
+            console.error(
+                'Error extracting expiration date from token:',
+                error
+            );
             return null;
         }
     }

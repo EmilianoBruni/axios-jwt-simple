@@ -60,7 +60,9 @@ const interceptJwtRequest = async (
             console.error(
                 '🟥 Access token invalid after renew. This is a problem.'
             );
-            throw new Error('Access token invalid after renew. This is a problem.');
+            throw new Error(
+                'Access token invalid after renew. This is a problem.'
+            );
         }
 
         // If the access token is valid, add it as a Bearer token in the Authorization header
