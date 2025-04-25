@@ -80,12 +80,12 @@ export default class AjsSessionStorage {
         }
     }
     // get the access token
-    public getAccessToken(): string | null {
-        return this._sessionTokens.accessToken.v;
+    public getAccessToken(): AjsTokenInfo {
+        return this._sessionTokens.accessToken;
     }
     // get the refresh token
-    public getRefreshToken(): string | null {
-        return this._sessionTokens.refreshToken.v;
+    public getRefreshToken(): AjsTokenInfo {
+        return this._sessionTokens.refreshToken;
     }
     // clear the access token
     public clearAccessToken(): void {
