@@ -1,16 +1,17 @@
-// a typescript class to manage jwt access and refresh tokens with value and expiration
+// A TypeScript class to manage JWT access and refresh tokens with their values and expiration dates.
 
 type AjsTokenInfo = {
-    v: string | null;
-    ex: Date | null;
+    v: string | null; // Token value
+    ex: Date | null; // Token expiration date
 };
 
 type AjsTokensInfo = {
-    accessToken: AjsTokenInfo;
-    refreshToken: AjsTokenInfo;
+    accessToken: AjsTokenInfo; // Information about the access token
+    refreshToken: AjsTokenInfo; // Information about the refresh token
 };
 
 export default class AjsSessionStorage {
+    // Internal storage for session tokens
     private _sessionTokens: AjsTokensInfo = {
         accessToken: {
             v: null,
@@ -22,7 +23,10 @@ export default class AjsSessionStorage {
         }
     };
 
-    // get if the access token is valid with a 10 second buffer
+    /**
+     * Checks if the access token is valid with a 10-second buffer.
+     * @returns `true` if the access token is valid, otherwise `false`.
+     */
     public isAccessTokenValid(): boolean {
         const accessToken = this._sessionTokens.accessToken;
         if (accessToken.v && accessToken.ex) {
@@ -35,7 +39,10 @@ export default class AjsSessionStorage {
         return false;
     }
 
-    // get if the refresh token is valid with a 10 second buffer
+    /**
+     * Checks if the refresh token is valid with a 10-second buffer.
+     * @returns `true` if the refresh token is valid, otherwise `false`.
+     */
     public isRefreshTokenValid(): boolean {
         const refreshToken = this._sessionTokens.refreshToken;
         if (refreshToken.v && refreshToken.ex) {
@@ -48,21 +55,28 @@ export default class AjsSessionStorage {
         return false;
     }
 
-    // a private function to extract expiration date from the jwt token
+    /**
+     * Extracts the expiration date from a JWT token.
+     * @param token - The JWT token string.
+     * @returns The expiration date as a `Date` object, or `null` if invalid.
+     */
     private _extractExpirationDate(token: string): Date | null {
         const parts = token.split('.');
         if (parts.length !== 3) {
-            return null;
+            return null; // Invalid JWT format
         }
-        const payload = JSON.parse(atob(parts[1]));
+        const payload = JSON.parse(atob(parts[1])); // Decode the payload
         if (payload.exp) {
-            const exp = new Date(payload.exp * 1000);
+            const exp = new Date(payload.exp * 1000); // Convert expiration to milliseconds
             return exp;
         }
         return null;
     }
 
-    // set the access token and expiration date
+    /**
+     * Sets the access token and its expiration date.
+     * @param token - The JWT access token string.
+     */
     public setAccessToken(token: string): void {
         this._sessionTokens.accessToken.v = token;
         const exp = this._extractExpirationDate(token);
@@ -71,7 +85,10 @@ export default class AjsSessionStorage {
         }
     }
 
-    // set the refresh token and expiration date
+    /**
+     * Sets the refresh token and its expiration date.
+     * @param token - The JWT refresh token string.
+     */
     public setRefreshToken(token: string): void {
         this._sessionTokens.refreshToken.v = token;
         const exp = this._extractExpirationDate(token);
@@ -79,25 +96,42 @@ export default class AjsSessionStorage {
             this._sessionTokens.refreshToken.ex = exp;
         }
     }
-    // get the access token
+
+    /**
+     * Retrieves the access token information.
+     * @returns An object containing the access token value and expiration date.
+     */
     public getAccessToken(): AjsTokenInfo {
         return this._sessionTokens.accessToken;
     }
-    // get the refresh token
+
+    /**
+     * Retrieves the refresh token information.
+     * @returns An object containing the refresh token value and expiration date.
+     */
     public getRefreshToken(): AjsTokenInfo {
         return this._sessionTokens.refreshToken;
     }
-    // clear the access token
+
+    /**
+     * Clears the access token from storage.
+     */
     public clearAccessToken(): void {
         this._sessionTokens.accessToken.v = null;
         this._sessionTokens.accessToken.ex = null;
     }
-    // clear the refresh token
+
+    /**
+     * Clears the refresh token from storage.
+     */
     public clearRefreshToken(): void {
         this._sessionTokens.refreshToken.v = null;
         this._sessionTokens.refreshToken.ex = null;
     }
-    // clear all tokens
+
+    /**
+     * Clears both the access and refresh tokens from storage.
+     */
     public clearAllTokens(): void {
         this.clearAccessToken();
         this.clearRefreshToken();

@@ -1,30 +1,36 @@
 import { AjsRequestConfig, AjsResponse, AjsStatic } from '@/types.js';
 
+/**
+ * Intercepts outgoing requests to handle JWT tokens.
+ * Adds authorization headers or refreshes tokens as needed.
+ *
+ * @param ajs - The Axios instance with JWT support.
+ * @param config - The Axios request configuration.
+ * @returns The modified request configuration.
+ */
 const interceptJwtRequest = async (
     ajs: AjsStatic,
     config: AjsRequestConfig
 ) => {
-    // if url is pathLogin call onLogin callback
-    // to add custom headers or params to login request. Usually
-    // config.data = { username, password }
+    // If the request is for the login endpoint, call the onLoginRequest callback
     if (config.url === ajs.pathLogin) {
         let lconfig = config;
-        // console.log('🟢 Login request. Calling on Login');
-        lconfig = ajs.onLoginRequest(lconfig);
+        lconfig = ajs.onLoginRequest(lconfig); // Modify the login request
         return lconfig;
     }
 
-    const sRT = ajs.sS.getRefreshToken();
+    const sRT = ajs.sS.getRefreshToken(); // Retrieve the refresh token
 
+    // If the request is for the refresh endpoint and the refresh token is valid
     if (config.url === ajs.pathRefresh && ajs.sS.isRefreshTokenValid()) {
-        // add bearer token to get new access token
+        // Add the refresh token as a Bearer token in the Authorization header
         config.headers['Authorization'] = `Bearer ${sRT.v}`;
         let lconfig = config;
-        lconfig = ajs.onRefreshRequest(lconfig);
+        lconfig = ajs.onRefreshRequest(lconfig); // Modify the refresh request
         return lconfig;
     }
 
-    // check is refresh token is not valid
+    // If the refresh token is not valid, attempt to log in
     if (!ajs.sS.isRefreshTokenValid()) {
         console.warn(
             '🟡 Refresh token expired or does not exist. Try to refresh'
@@ -32,7 +38,7 @@ const interceptJwtRequest = async (
         await login(ajs);
     }
 
-    // check is refresh token is still not valid
+    // If the refresh token is still not valid after login
     if (!ajs.sS.isRefreshTokenValid()) {
         console.error(
             '🟥 Refresh token invalid after login. This is a problem.'
@@ -42,13 +48,13 @@ const interceptJwtRequest = async (
         );
     }
 
-    // check is access token is not valid
+    // If the access token is not valid, attempt to refresh it
     if (!ajs.sS.isAccessTokenValid()) {
         console.warn('🟡 Access token expired. Try to refresh');
         await refresh(ajs);
     }
 
-    // check is access token is still not valid
+    // If the access token is still not valid after refresh
     if (!ajs.sS.isAccessTokenValid()) {
         console.error(
             '🟥 Access token invalid after renew. This is a problem.'
@@ -56,18 +62,23 @@ const interceptJwtRequest = async (
         throw new Error('Access token invalid after renew. This is a problem.');
     }
 
-    // if access token is valid, add bearer token to request
+    // If the access token is valid, add it as a Bearer token in the Authorization header
     const sAT = ajs.sS.getAccessToken();
     config.headers['Authorization'] = `Bearer ${sAT.v}`;
 
     return config;
 };
 
+/**
+ * Logs in using the login endpoint and updates the access and refresh tokens.
+ *
+ * @param ajs - The Axios instance with JWT support.
+ */
 const login = async (ajs: AjsStatic) => {
     try {
         const response = await ajs.post(ajs.pathLogin);
         if (response.status === 200 && response.data && response.data.token) {
-            // update access token
+            // Update the access and refresh tokens
             ajs.sS.setAccessToken(response.data.token);
             ajs.sS.setRefreshToken(response.data.refreshToken);
         } else {
@@ -83,11 +94,16 @@ const login = async (ajs: AjsStatic) => {
     }
 };
 
+/**
+ * Refreshes the access token using the refresh endpoint.
+ *
+ * @param ajs - The Axios instance with JWT support.
+ */
 const refresh = async (ajs: AjsStatic) => {
     try {
         const response = await ajs.get(ajs.pathRefresh);
         if (response.status === 200 && response.data && response.data.token) {
-            // update access token
+            // Update the access token
             ajs.sS.setAccessToken(response.data.token);
         } else {
             console.error('🟥 Refresh token failed. No token in response');
@@ -102,24 +118,28 @@ const refresh = async (ajs: AjsStatic) => {
     }
 };
 
+/**
+ * Intercepts incoming responses to handle JWT tokens.
+ * Calls appropriate callbacks for login and refresh responses.
+ *
+ * @param ajs - The Axios instance with JWT support.
+ * @param response - The Axios response object.
+ * @returns The modified response object.
+ */
 const interceptJwtResponse = async (ajs: AjsStatic, response: AjsResponse) => {
-    // format response to ajs format so the body payload is
-    // {token: '...', refreshToken: '...'}
-    // console.log('Loading interceptJwtSession response');
-
+    // If the response is for the login endpoint, call the onLoginResponse callback
     if (response.config.url === ajs.pathLogin) {
-        // console.log('🟢 Login response. Calling on Login');
         const lresponse = ajs.onLoginResponse(response);
         return lresponse;
     }
 
+    // If the response is for the refresh endpoint, call the onRefreshResponse callback
     if (response.config.url === ajs.pathRefresh) {
-        // console.log('🟢 Refresh response. Calling on Refresh');
         const lresponse = ajs.onRefreshResponse(response);
         return lresponse;
     }
 
-    return response;
+    return response; // Return the unmodified response for other endpoints
 };
 
 export { interceptJwtRequest, interceptJwtResponse };
