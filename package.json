@@ -4,14 +4,16 @@
   "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
   "main": "dist/index.js",
   "scripts": {
-    "test": "tap -j1 --allow-incomplete-coverage \"./test/**/*.test.?(c)[tj]s\"",
+    "test": "tap -j1 --allow-incomplete-coverage \"test/**/*.test.?(c)[tj]s\"",
     "buildcjs": "rollup ./dist/index.js --file ./dist/index.cjs --format cjs",
-    "build": "pnpm clean; tsc",
+    "build": "pnpm clean && pnpm tsc && pnpm tsc-alias",
     "clean": "rimraf ./dist .tap",
     "lint": "eslint \"src/**/*.[jt]s?(x)\" \"test/**/*.?(c)[jt]s\"",
     "lint:fix": "pnpm lint --fix",
     "prepublishOnly": "pnpm lint:fix && pnpm build && pnpm buildcjs && pnpm test",
-    "test:ci": "pnpm prepublishOnly"
+    "test:ci": "pnpm prepublishOnly",
+    "tsc": "tsc -p tsconfig.build.json",
+    "tsc-alias": "tsc-alias -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,8 @@
   "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.25.1",
+    "@tapjs/core": "^4.0.1",
+    "@tapjs/tsx": "^3.0.1",
     "@tsconfig/node20": "^20.1.5",
     "@types/node": "^22.15.2",
     "eslint": "^9.25.1",
@@ -39,6 +43,7 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.40.0",
     "tap": "^21.1.0",
+    "tsc-alias": "^1.8.15",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.0"
@@ -49,5 +54,14 @@
       "types": "./dist/types/index.d.js"
     },
     "require": "./dist/index.cjs"
+  },
+  "dependencies": {
+    "axios": "^1.9.0"
+  },
+  "tap": {
+    "plugin": [
+      "@tapjs/tsx",
+      "!@tapjs/typescript"
+    ]
   }
 }
