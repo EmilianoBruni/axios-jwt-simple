@@ -22,6 +22,9 @@ const interceptJwtRequest = async (
     if (config.url === ajs.pathRefresh && sRT.v) {
         // add bearer token to get new access token
         config.headers['Authorization'] = `Bearer ${sRT.v}`;
+        let lconfig = config;
+        lconfig = ajs.onRefreshRequest(lconfig);
+        return lconfig;
     }
 
     // check is refresh token is not valid
@@ -110,6 +113,12 @@ const interceptJwtResponse = async (ajs: AjsStatic, response: AjsResponse) => {
     if (response.config.url === ajs.pathLogin) {
         // console.log('🟢 Login response. Calling on Login');
         const lresponse = ajs.onLoginResponse(response);
+        return lresponse;
+    }
+
+    if (response.config.url === ajs.pathRefresh) {
+        // console.log('🟢 Refresh response. Calling on Refresh');
+        const lresponse = ajs.onRefreshResponse(response);
         return lresponse;
     }
 
