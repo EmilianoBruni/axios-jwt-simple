@@ -1,18 +1,19 @@
-import { AjsRequestConfig, AjsStatic } from '@/types.js';
+import { AjsRequestConfig, AjsResponse, AjsStatic } from '@/types.js';
 import AjsSessionStorage from '@/lib/AjsSessionStorage.js';
 
 const sS = new AjsSessionStorage();
 
-export default async (ajs: AjsStatic, config: AjsRequestConfig) => {
-    console.log('Loading interceptJwtSession');
-
+const interceptJwtRequest = async (
+    ajs: AjsStatic,
+    config: AjsRequestConfig
+) => {
     // if url is pathLogin call onLogin callback
     // to add custom headers or params to login request. Usually
     // config.data = { username, password }
     if (config.url === ajs.pathLogin) {
         let lconfig = config;
-        console.log('🟢 Login request. Calling on Login');
-        if (ajs.onLogin) lconfig = ajs.onLogin(lconfig);
+        // console.log('🟢 Login request. Calling on Login');
+        lconfig = ajs.onLoginRequest(lconfig);
         return lconfig;
     }
 
@@ -31,10 +32,28 @@ export default async (ajs: AjsStatic, config: AjsRequestConfig) => {
         await login(ajs);
     }
 
+    // check is refresh token is still not valid
+    if (!sS.isRefreshTokenValid()) {
+        console.error(
+            '🟥 Refresh token invalid after login. This is a problem.'
+        );
+        throw new Error(
+            'Refresh token invalid after login. This is a problem.'
+        );
+    }
+
     // check is access token is not valid
     if (!sS.isAccessTokenValid()) {
         console.warn('🟡 Access token expired. Try to refresh');
         await refresh(ajs);
+    }
+
+    // check is access token is still not valid
+    if (!sS.isAccessTokenValid()) {
+        console.error(
+            '🟥 Access token invalid after renew. This is a problem.'
+        );
+        throw new Error('Access token invalid after renew. This is a problem.');
     }
 
     // if access token is valid, add bearer token to request
@@ -82,3 +101,19 @@ const refresh = async (ajs: AjsStatic) => {
         throw new Error('Error while refreshing access token');
     }
 };
+
+const interceptJwtResponse = async (ajs: AjsStatic, response: AjsResponse) => {
+    // format response to ajs format so the body payload is
+    // {token: '...', refreshToken: '...'}
+    // console.log('Loading interceptJwtSession response');
+
+    if (response.config.url === ajs.pathLogin) {
+        // console.log('🟢 Login response. Calling on Login');
+        const lresponse = ajs.onLoginResponse(response);
+        return lresponse;
+    }
+
+    return response;
+};
+
+export { interceptJwtRequest, interceptJwtResponse };
