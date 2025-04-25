@@ -1,8 +1,17 @@
 import axios from 'axios';
 import interceptErrors from '@/lib/interceptErrors.js';
-import type { AjsOnLogin, AjsRequestConfig, AjsStatic } from '@/types.js';
+import type {
+    AjsOnLoginRequest,
+    AjsOnLoginResponse,
+    AjsRequestConfig,
+    AjsResponse,
+    AjsStatic
+} from '@/types.js';
 import AjsSessionStorage from '@/lib/AjsSessionStorage.js';
-import interceptJwtSession from '@/lib/interceptJwtSession.js';
+import {
+    interceptJwtRequest,
+    interceptJwtResponse
+} from '@/lib/interceptJwtSession.js';
 
 const ajs = axios as AjsStatic;
 
@@ -10,17 +19,21 @@ const ajs = axios as AjsStatic;
 ajs.pathLogin = '/auth/token';
 ajs.pathLogout = '/auth/logout';
 ajs.pathRefresh = '/auth/refresh';
-ajs.onLogin = (requestConfig: AjsRequestConfig) => requestConfig;
+ajs.onLoginRequest = (requestConfig: AjsRequestConfig) => requestConfig;
+ajs.onLoginResponse = (response: AjsResponse) => response;
 ajs.sessionStorage = new AjsSessionStorage();
-ajs.jwtMode = -1;
+ajs.jwtMode = [-1, -1];
 
-ajs.jwtInit = function (urlBase: string, onLogin?: AjsOnLogin) {
+ajs.jwtInit = function (
+    urlBase: string,
+    onLoginRequest?: AjsOnLoginRequest,
+    onLoginResponse?: AjsOnLoginResponse
+) {
     ajs.defaults.baseURL = urlBase;
     ajs.setJwtMode(true);
 
-    if (onLogin) {
-        ajs.onLogin = onLogin;
-    }
+    if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;
+    if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
 };
 
 ajs.interceptors.response.use(
@@ -35,13 +48,19 @@ ajs.interceptors.response.use(
 );
 
 ajs.setJwtMode = (mode: boolean) => {
-    if (mode && ajs.jwtMode === 0) {
-        ajs.jwtMode = ajs.interceptors.request.use(
-            request => interceptJwtSession(ajs, request),
+    if (mode && ajs.jwtMode[0] === -1) {
+        ajs.jwtMode[0] = ajs.interceptors.request.use(
+            request => interceptJwtRequest(ajs, request),
             error => error
         );
-    } else if (!mode && ajs.jwtMode !== -1) {
-        ajs.interceptors.request.eject(ajs.jwtMode);
+        ajs.jwtMode[1] = ajs.interceptors.response.use(
+            response => interceptJwtResponse(ajs, response),
+            error => error
+        );
+    } else if (!mode && ajs.jwtMode[0] !== -1) {
+        ajs.interceptors.request.eject(ajs.jwtMode[0]);
+        ajs.interceptors.response.eject(ajs.jwtMode[1]);
+        ajs.jwtMode = [-1, -1];
     }
 };
 
