@@ -231,3 +231,93 @@ tap.test('Ajs jwtInit with refresh token', async t => {
     );
     t.end();
 });
+
+tap.test('Ajs jwtInit when tokens expired', async t => {
+    t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
+
+    const baseUrl = 'https://mockhttp.org';
+
+    const accessToken = generateFakeJwtToken(12);
+    const anotherAccessToken = generateFakeJwtToken(1000);
+    const refreshToken = generateFakeJwtToken(12);
+    const anotherRefreshToken = generateFakeJwtToken(2000);
+
+    // inject tokens to the request so we find them in the response
+    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
+        requestConfig.data = {
+            token: accessToken,
+            refreshToken: refreshToken
+        };
+        return requestConfig;
+    };
+    // move mock body response to data where ajs expects it
+    const onLoginResponse = (response: AjsResponse) => {
+        response.data = { ...response.data.body };
+        return response;
+    };
+
+    // const onRefreshRequest = (requestConfig: AjsRequestConfig) => {
+    //     requestConfig.params = {
+    //         token: anotherAccessToken
+    //     };
+    //     return requestConfig;
+    // };
+
+    // const onRefreshResponse = (response: AjsResponse) => {
+    //     response.data = { ...response.data.queryParams };
+    //     return response;
+    // };
+
+    ajs.jwtInit(baseUrl, onLoginRequest, onLoginResponse);
+
+    // ajs.onRefreshRequest = onRefreshRequest;
+    // ajs.onRefreshResponse = onRefreshResponse;
+
+    // change default values for the test
+    ajs.pathLogin = '/post';
+    ajs.pathRefresh = '/get';
+
+    t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
+
+    // see if in the request we have auth data
+    const path = '/headers';
+    const response = await ajs.get(path);
+    t.equal(
+        response.data.headers.authorization,
+        'Bearer ' + accessToken,
+        'Ajs have the correct authorization header'
+    );
+
+    // wait for the token to expire
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // set a  onLoginRequest to inject the new tokens
+    ajs.onLoginRequest = (requestConfig: AjsRequestConfig) => {
+        requestConfig.data = {
+            token: anotherAccessToken,
+            refreshToken: anotherRefreshToken
+        };
+        return requestConfig;
+    };
+
+    // see if in the request we have auth data
+    const response2 = await ajs.get(path);
+    // have a authorization header
+    t.ok(response2, 'Ajs.get should return a response');
+    t.ok(response2.status, 'Ajs.get should return a status');
+    t.equal(response2.status, 200, 'Ajs.get should return a status of 200');
+    t.ok(response2.data, 'Ajs.get should return a data property');
+    t.ok(response2.data.headers, 'Ajs.get should return a headers property');
+    t.ok(
+        response2.data.headers.authorization,
+        'Ajs.get should return a headers property with authorization'
+    );
+
+    // but the token is not the first
+    t.equal(
+        response2.data.headers.authorization,
+        'Bearer ' + anotherAccessToken,
+        'Ajs have the correct authorization header'
+    );
+    t.end();
+});
