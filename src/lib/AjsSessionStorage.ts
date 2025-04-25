@@ -1,5 +1,3 @@
-// A TypeScript class to manage JWT access and refresh tokens with their values and expiration dates.
-
 type AjsTokenInfo = {
     v: string | null; // Token value
     ex: Date | null; // Token expiration date
@@ -61,16 +59,24 @@ export default class AjsSessionStorage {
      * @returns The expiration date as a `Date` object, or `null` if invalid.
      */
     private _extractExpirationDate(token: string): Date | null {
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-            return null; // Invalid JWT format
+        try {
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                return null; // Invalid JWT format
+            }
+            const payload = JSON.parse(atob(parts[1])); // Decode the payload
+            if (payload.exp) {
+                const exp = new Date(payload.exp * 1000); // Convert expiration to milliseconds
+                return exp;
+            }
+            return null;
+        } catch (error) {
+            console.error(
+                'Error extracting expiration date from token:',
+                error
+            );
+            return null;
         }
-        const payload = JSON.parse(atob(parts[1])); // Decode the payload
-        if (payload.exp) {
-            const exp = new Date(payload.exp * 1000); // Convert expiration to milliseconds
-            return exp;
-        }
-        return null;
     }
 
     /**
