@@ -1,0 +1,53 @@
+{
+  "name": "axios-jwt-simple",
+  "version": "0.1.0",
+  "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "tap -j1 --allow-incomplete-coverage \"./test/**/*.test.?(c)[tj]s\"",
+    "buildcjs": "rollup ./dist/index.js --file ./dist/index.cjs --format cjs",
+    "build": "pnpm clean; tsc",
+    "clean": "rimraf ./dist .tap",
+    "lint": "eslint \"src/**/*.[jt]s?(x)\" \"test/**/*.?(c)[jt]s\"",
+    "lint:fix": "pnpm lint --fix",
+    "prepublishOnly": "pnpm lint:fix && pnpm build && pnpm buildcjs && pnpm test",
+    "test:ci": "pnpm prepublishOnly"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EmilianoBruni/axios-jwt-simple.git"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript"
+  ],
+  "author": "Emiliano Bruni <info@ebruni.it>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/EmilianoBruni/axios-jwt-simple/issues"
+  },
+  "homepage": "https://github.com/EmilianoBruni/axios-jwt-simple#readme",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "@tsconfig/node20": "^20.1.5",
+    "@types/node": "^22.15.2",
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "globals": "^16.0.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.40.0",
+    "tap": "^21.1.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.0"
+  },
+  "exports": {
+    "import": {
+      "default": "./dist/index.js",
+      "types": "./dist/types/index.d.js"
+    },
+    "require": "./dist/index.cjs"
+  }
+}
