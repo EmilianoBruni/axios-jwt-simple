@@ -1,11 +1,13 @@
 import tap from 'tap';
 import ajs from '@/index.js';
 
-tap.test('Ajs jwtInit', async t => {
+tap.test('Ajs jwtInit with JwtMode disabled. Axios compatibility', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
     const baseUrl = 'https://mockhttp.org';
     ajs.jwtInit(baseUrl);
+    // but force to not load interceptor for jwt
+    ajs.setJwtMode(false);
     t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
 
     // test get method with path only
