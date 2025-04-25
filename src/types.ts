@@ -4,19 +4,21 @@ import AjsSessionStorage from '@/lib/AjsSessionStorage.js';
 export type AjsRequestConfig = InternalAxiosRequestConfig;
 export type AjsResponse = AxiosResponse;
 
-export type AjsOnLoginRequest = (
+export type AjsOnRequest = (
     requestConfig: AjsRequestConfig
 ) => AjsRequestConfig;
-export type AjsOnLoginResponse = (response: AjsResponse) => AjsResponse;
+export type AjsOnResponse = (response: AjsResponse) => AjsResponse;
 
 export interface AjsStatic extends AxiosStatic {
     jwtInit: (
         urlBase: string,
-        onLoginRequest?: AjsOnLoginRequest,
-        onLoginResponse?: AjsOnLoginResponse
+        onLoginRequest?: AjsOnRequest,
+        onLoginResponse?: AjsOnResponse
     ) => void;
-    onLoginRequest: AjsOnLoginRequest;
-    onLoginResponse: AjsOnLoginResponse;
+    onLoginRequest: AjsOnRequest;
+    onLoginResponse: AjsOnResponse;
+    onRefreshRequest: AjsOnRequest;
+    onRefreshResponse: AjsOnResponse;
     pathLogin: string;
     pathLogout: string;
     pathRefresh: string;

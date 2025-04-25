@@ -1,8 +1,8 @@
 import axios from 'axios';
 import interceptErrors from '@/lib/interceptErrors.js';
 import type {
-    AjsOnLoginRequest,
-    AjsOnLoginResponse,
+    AjsOnRequest,
+    AjsOnResponse,
     AjsRequestConfig,
     AjsResponse,
     AjsStatic
@@ -21,13 +21,15 @@ ajs.pathLogout = '/auth/logout';
 ajs.pathRefresh = '/auth/refresh';
 ajs.onLoginRequest = (requestConfig: AjsRequestConfig) => requestConfig;
 ajs.onLoginResponse = (response: AjsResponse) => response;
+ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => requestConfig;
+ajs.onRefreshResponse = (response: AjsResponse) => response;
 ajs.sessionStorage = new AjsSessionStorage();
 ajs.jwtMode = [-1, -1];
 
 ajs.jwtInit = function (
     urlBase: string,
-    onLoginRequest?: AjsOnLoginRequest,
-    onLoginResponse?: AjsOnLoginResponse
+    onLoginRequest?: AjsOnRequest,
+    onLoginResponse?: AjsOnResponse
 ) {
     ajs.defaults.baseURL = urlBase;
     ajs.setJwtMode(true);
