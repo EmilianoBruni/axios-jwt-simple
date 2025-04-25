@@ -2,6 +2,11 @@ import tap from 'tap';
 import ajs from '@/index.js';
 import { AjsRequestConfig, AjsResponse } from '@/types.js';
 
+/**
+ * Generates a fake JWT token for testing purposes.
+ * @param exp - The expiration time in seconds.
+ * @returns A fake JWT token string.
+ */
 const generateFakeJwtToken = (exp: number) => {
     const header = {
         alg: 'none',
@@ -24,6 +29,10 @@ const generateFakeJwtToken = (exp: number) => {
     return `${base64UrlHeader}.${base64UrlPayload}.${signature}`;
 };
 
+/**
+ * Test case for initializing JWT with JWT mode disabled.
+ * Ensures Axios compatibility.
+ */
 tap.test('Ajs jwtInit with JwtMode disabled. Axios compatibility', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
@@ -57,6 +66,9 @@ tap.test('Ajs jwtInit with JwtMode disabled. Axios compatibility', async t => {
     t.end();
 });
 
+/**
+ * Test case for initializing JWT with initial configuration.
+ */
 tap.test('Ajs jwtInit with initial conf', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
@@ -104,6 +116,9 @@ tap.test('Ajs jwtInit with initial conf', async t => {
     t.end();
 });
 
+/**
+ * Test case for initializing JWT with post configuration.
+ */
 tap.test('Ajs jwtInit post conf', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
@@ -153,6 +168,9 @@ tap.test('Ajs jwtInit post conf', async t => {
     t.end();
 });
 
+/**
+ * Test case for initializing JWT with refresh token.
+ */
 tap.test('Ajs jwtInit with refresh token', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
@@ -232,6 +250,9 @@ tap.test('Ajs jwtInit with refresh token', async t => {
     t.end();
 });
 
+/**
+ * Test case for initializing JWT when tokens are expired.
+ */
 tap.test('Ajs jwtInit when tokens expired', async t => {
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
@@ -256,22 +277,7 @@ tap.test('Ajs jwtInit when tokens expired', async t => {
         return response;
     };
 
-    // const onRefreshRequest = (requestConfig: AjsRequestConfig) => {
-    //     requestConfig.params = {
-    //         token: anotherAccessToken
-    //     };
-    //     return requestConfig;
-    // };
-
-    // const onRefreshResponse = (response: AjsResponse) => {
-    //     response.data = { ...response.data.queryParams };
-    //     return response;
-    // };
-
     ajs.jwtInit(baseUrl, onLoginRequest, onLoginResponse);
-
-    // ajs.onRefreshRequest = onRefreshRequest;
-    // ajs.onRefreshResponse = onRefreshResponse;
 
     // change default values for the test
     ajs.pathLogin = '/post';

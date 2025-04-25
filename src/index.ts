@@ -40,13 +40,18 @@ ajs.jwtInit = function (
     onLoginRequest?: AjsOnRequest,
     onLoginResponse?: AjsOnResponse
 ) {
-    ajs.defaults.baseURL = urlBase; // Set the base URL for all requests
-    ajs.sS = new AjsSessionStorage(); // Initialize session storage
-    ajs.setJwtMode(true); // Enable JWT mode by default
+    try {
+        ajs.defaults.baseURL = urlBase; // Set the base URL for all requests
+        ajs.sS = new AjsSessionStorage(); // Initialize session storage
+        ajs.setJwtMode(true); // Enable JWT mode by default
 
-    // Set custom handlers if provided
-    if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;
-    if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
+        // Set custom handlers if provided
+        if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;
+        if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
+    } catch (error) {
+        console.error('Error initializing JWT:', error);
+        throw new Error('Failed to initialize JWT');
+    }
 };
 
 // Global response interceptor for handling errors

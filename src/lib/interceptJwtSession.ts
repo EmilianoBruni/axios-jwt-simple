@@ -12,61 +12,66 @@ const interceptJwtRequest = async (
     ajs: AjsStatic,
     config: AjsRequestConfig
 ) => {
-    // If the request is for the login endpoint, call the onLoginRequest callback
-    if (config.url === ajs.pathLogin) {
-        let lconfig = config;
-        lconfig = ajs.onLoginRequest(lconfig); // Modify the login request
-        return lconfig;
+    try {
+        // If the request is for the login endpoint, call the onLoginRequest callback
+        if (config.url === ajs.pathLogin) {
+            let lconfig = config;
+            lconfig = ajs.onLoginRequest(lconfig); // Modify the login request
+            return lconfig;
+        }
+
+        const sRT = ajs.sS.getRefreshToken(); // Retrieve the refresh token
+
+        // If the request is for the refresh endpoint and the refresh token is valid
+        if (config.url === ajs.pathRefresh && ajs.sS.isRefreshTokenValid()) {
+            // Add the refresh token as a Bearer token in the Authorization header
+            config.headers['Authorization'] = `Bearer ${sRT.v}`;
+            let lconfig = config;
+            lconfig = ajs.onRefreshRequest(lconfig); // Modify the refresh request
+            return lconfig;
+        }
+
+        // If the refresh token is not valid, attempt to log in
+        if (!ajs.sS.isRefreshTokenValid()) {
+            console.warn(
+                '🟡 Refresh token expired or does not exist. Try to refresh'
+            );
+            await login(ajs);
+        }
+
+        // If the refresh token is still not valid after login
+        if (!ajs.sS.isRefreshTokenValid()) {
+            console.error(
+                '🟥 Refresh token invalid after login. This is a problem.'
+            );
+            throw new Error(
+                'Refresh token invalid after login. This is a problem.'
+            );
+        }
+
+        // If the access token is not valid, attempt to refresh it
+        if (!ajs.sS.isAccessTokenValid()) {
+            console.warn('🟡 Access token expired. Try to refresh');
+            await refresh(ajs);
+        }
+
+        // If the access token is still not valid after refresh
+        if (!ajs.sS.isAccessTokenValid()) {
+            console.error(
+                '🟥 Access token invalid after renew. This is a problem.'
+            );
+            throw new Error('Access token invalid after renew. This is a problem.');
+        }
+
+        // If the access token is valid, add it as a Bearer token in the Authorization header
+        const sAT = ajs.sS.getAccessToken();
+        config.headers['Authorization'] = `Bearer ${sAT.v}`;
+
+        return config;
+    } catch (error) {
+        console.error('Error in interceptJwtRequest:', error);
+        throw error;
     }
-
-    const sRT = ajs.sS.getRefreshToken(); // Retrieve the refresh token
-
-    // If the request is for the refresh endpoint and the refresh token is valid
-    if (config.url === ajs.pathRefresh && ajs.sS.isRefreshTokenValid()) {
-        // Add the refresh token as a Bearer token in the Authorization header
-        config.headers['Authorization'] = `Bearer ${sRT.v}`;
-        let lconfig = config;
-        lconfig = ajs.onRefreshRequest(lconfig); // Modify the refresh request
-        return lconfig;
-    }
-
-    // If the refresh token is not valid, attempt to log in
-    if (!ajs.sS.isRefreshTokenValid()) {
-        console.warn(
-            '🟡 Refresh token expired or does not exist. Try to refresh'
-        );
-        await login(ajs);
-    }
-
-    // If the refresh token is still not valid after login
-    if (!ajs.sS.isRefreshTokenValid()) {
-        console.error(
-            '🟥 Refresh token invalid after login. This is a problem.'
-        );
-        throw new Error(
-            'Refresh token invalid after login. This is a problem.'
-        );
-    }
-
-    // If the access token is not valid, attempt to refresh it
-    if (!ajs.sS.isAccessTokenValid()) {
-        console.warn('🟡 Access token expired. Try to refresh');
-        await refresh(ajs);
-    }
-
-    // If the access token is still not valid after refresh
-    if (!ajs.sS.isAccessTokenValid()) {
-        console.error(
-            '🟥 Access token invalid after renew. This is a problem.'
-        );
-        throw new Error('Access token invalid after renew. This is a problem.');
-    }
-
-    // If the access token is valid, add it as a Bearer token in the Authorization header
-    const sAT = ajs.sS.getAccessToken();
-    config.headers['Authorization'] = `Bearer ${sAT.v}`;
-
-    return config;
 };
 
 /**
