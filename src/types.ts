@@ -22,7 +22,7 @@ export interface AjsStatic extends AxiosStatic {
     pathLogin: string;
     pathLogout: string;
     pathRefresh: string;
-    sessionStorage: AjsSessionStorage;
+    sS: AjsSessionStorage;
     jwtMode: [number, number];
     setJwtMode: (mode: boolean) => void;
 }

@@ -23,7 +23,6 @@ ajs.onLoginRequest = (requestConfig: AjsRequestConfig) => requestConfig;
 ajs.onLoginResponse = (response: AjsResponse) => response;
 ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => requestConfig;
 ajs.onRefreshResponse = (response: AjsResponse) => response;
-ajs.sessionStorage = new AjsSessionStorage();
 ajs.jwtMode = [-1, -1];
 
 ajs.jwtInit = function (
@@ -32,6 +31,7 @@ ajs.jwtInit = function (
     onLoginResponse?: AjsOnResponse
 ) {
     ajs.defaults.baseURL = urlBase;
+    ajs.sS = new AjsSessionStorage();
     ajs.setJwtMode(true);
 
     if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;

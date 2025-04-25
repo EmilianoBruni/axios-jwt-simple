@@ -1,7 +1,4 @@
 import { AjsRequestConfig, AjsResponse, AjsStatic } from '@/types.js';
-import AjsSessionStorage from '@/lib/AjsSessionStorage.js';
-
-const sS = new AjsSessionStorage();
 
 const interceptJwtRequest = async (
     ajs: AjsStatic,
@@ -17,7 +14,7 @@ const interceptJwtRequest = async (
         return lconfig;
     }
 
-    const sRT = sS.getRefreshToken();
+    const sRT = ajs.sS.getRefreshToken();
 
     if (config.url === ajs.pathRefresh && sRT.v) {
         // add bearer token to get new access token
@@ -28,7 +25,7 @@ const interceptJwtRequest = async (
     }
 
     // check is refresh token is not valid
-    if (!sS.isRefreshTokenValid()) {
+    if (!ajs.sS.isRefreshTokenValid()) {
         console.warn(
             '🟡 Refresh token expired or does not exist. Try to refresh'
         );
@@ -36,7 +33,7 @@ const interceptJwtRequest = async (
     }
 
     // check is refresh token is still not valid
-    if (!sS.isRefreshTokenValid()) {
+    if (!ajs.sS.isRefreshTokenValid()) {
         console.error(
             '🟥 Refresh token invalid after login. This is a problem.'
         );
@@ -46,13 +43,13 @@ const interceptJwtRequest = async (
     }
 
     // check is access token is not valid
-    if (!sS.isAccessTokenValid()) {
+    if (!ajs.sS.isAccessTokenValid()) {
         console.warn('🟡 Access token expired. Try to refresh');
         await refresh(ajs);
     }
 
     // check is access token is still not valid
-    if (!sS.isAccessTokenValid()) {
+    if (!ajs.sS.isAccessTokenValid()) {
         console.error(
             '🟥 Access token invalid after renew. This is a problem.'
         );
@@ -60,7 +57,7 @@ const interceptJwtRequest = async (
     }
 
     // if access token is valid, add bearer token to request
-    const sAT = sS.getAccessToken();
+    const sAT = ajs.sS.getAccessToken();
     config.headers['Authorization'] = `Bearer ${sAT.v}`;
 
     return config;
@@ -71,8 +68,8 @@ const login = async (ajs: AjsStatic) => {
         const response = await ajs.post(ajs.pathLogin);
         if (response.status === 200 && response.data && response.data.token) {
             // update access token
-            sS.setAccessToken(response.data.token);
-            sS.setRefreshToken(response.data.refreshToken);
+            ajs.sS.setAccessToken(response.data.token);
+            ajs.sS.setRefreshToken(response.data.refreshToken);
         } else {
             console.error('🟥 Login failed. No token in response');
             throw new Error('Login failed. No token in response');
@@ -91,7 +88,7 @@ const refresh = async (ajs: AjsStatic) => {
         const response = await ajs.get(ajs.pathRefresh);
         if (response.status === 200 && response.data && response.data.token) {
             // update access token
-            sS.setAccessToken(response.data.token);
+            ajs.sS.setAccessToken(response.data.token);
         } else {
             console.error('🟥 Refresh token failed. No token in response');
             throw new Error('Refresh token failed. No token in response');
