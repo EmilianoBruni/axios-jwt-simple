@@ -1,33 +1,7 @@
 import tap from 'tap';
 import ajs from '@/index.js';
 import { AjsRequestConfig, AjsResponse } from '@/types.js';
-
-/**
- * Generates a fake JWT token for testing purposes.
- * @param exp - The expiration time in seconds.
- * @returns A fake JWT token string.
- */
-const generateFakeJwtToken = (exp: number) => {
-    const header = {
-        alg: 'none',
-        typ: 'JWT'
-    };
-    const payload = {
-        exp: Math.floor(Date.now() / 1000) + exp,
-        iat: Math.floor(Date.now() / 1000),
-        sub: '1234567890',
-        name: 'John Doe'
-    };
-
-    const base64UrlHeader = Buffer.from(JSON.stringify(header)).toString(
-        'base64url'
-    );
-    const base64UrlPayload = Buffer.from(JSON.stringify(payload)).toString(
-        'base64url'
-    );
-    const signature = 'signature'; // No signature for this test
-    return `${base64UrlHeader}.${base64UrlPayload}.${signature}`;
-};
+import { generateFakeJwtToken, checkBearer, fakeJwtAjs } from './utils.js';
 
 /**
  * Test case for initializing JWT with JWT mode disabled.
@@ -62,137 +36,28 @@ tap.test('Ajs jwtInit with JwtMode disabled. Axios compatibility', async t => {
         'GET',
         'Ajs.get should return the correct method'
     );
-
-    t.end();
 });
 
 /**
  * Test case for initializing JWT with initial configuration.
  */
 tap.test('Ajs jwtInit with initial conf', async t => {
-    t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
-
-    const baseUrl = 'https://mockhttp.org';
-
     const accessToken = generateFakeJwtToken(1000);
     const refreshToken = generateFakeJwtToken(2000);
 
-    // inject tokens to the request so we find them in the response
-    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
-        requestConfig.data = {
-            token: accessToken,
-            refreshToken: refreshToken
-        };
-        return requestConfig;
-    };
-    // move mock body response to data where ajs expects it
-    const onLoginResponse = (response: AjsResponse) => {
-        response.data = { ...response.data.body };
-        return response;
-    };
-
-    ajs.jwtInit(baseUrl, onLoginRequest, onLoginResponse);
-
-    // change default values for the test
-    ajs.pathLogin = '/post';
-    ajs.pathRefresh = '/get';
-
-    t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
-
-    // see if in the request we have auth data
-    const path = '/headers';
-    const response = await ajs.get(path);
-    t.ok(response, 'Ajs.get should return a response');
-    t.ok(response.status, 'Ajs.get should return a status');
-    t.equal(response.status, 200, 'Ajs.get should return a status of 200');
-    t.ok(response.data, 'Ajs.get should return a data property');
-    t.equal(typeof response.data, 'object', 'Ajs.get should return an object');
-    t.equal(
-        response.data.headers.authorization,
-        'Bearer ' + accessToken,
-        'Ajs have the correct authorization header'
-    );
-
-    t.end();
-});
-
-/**
- * Test case for initializing JWT with post configuration.
- */
-tap.test('Ajs jwtInit post conf', async t => {
+    fakeJwtAjs(ajs, accessToken, refreshToken);
     t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
 
-    const baseUrl = 'https://mockhttp.org';
-
-    const accessToken = generateFakeJwtToken(1000);
-    const refreshToken = generateFakeJwtToken(2000);
-
-    // inject tokens to the request so we find them in the response
-    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
-        requestConfig.data = {
-            token: accessToken,
-            refreshToken: refreshToken
-        };
-        return requestConfig;
-    };
-    // move mock body response to data where ajs expects it
-    const onLoginResponse = (response: AjsResponse) => {
-        response.data = { ...response.data.body };
-        return response;
-    };
-
-    ajs.jwtInit(baseUrl);
-    ajs.onLoginRequest = onLoginRequest;
-    ajs.onLoginResponse = onLoginResponse;
-
-    // change default values for the test
-    ajs.pathLogin = '/post';
-    ajs.pathRefresh = '/get';
-
-    t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
-
-    // see if in the request we have auth data
-    const path = '/headers';
-    const response = await ajs.get(path);
-    t.ok(response, 'Ajs.get should return a response');
-    t.ok(response.status, 'Ajs.get should return a status');
-    t.equal(response.status, 200, 'Ajs.get should return a status of 200');
-    t.ok(response.data, 'Ajs.get should return a data property');
-    t.equal(typeof response.data, 'object', 'Ajs.get should return an object');
-    t.equal(
-        response.data.headers.authorization,
-        'Bearer ' + accessToken,
-        'Ajs have the correct authorization header'
-    );
-
-    t.end();
+    await checkBearer(t, ajs, accessToken);
 });
 
 /**
  * Test case for initializing JWT with refresh token.
  */
 tap.test('Ajs jwtInit with refresh token', async t => {
-    t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
-
-    const baseUrl = 'https://mockhttp.org';
-
     const accessToken = generateFakeJwtToken(12);
     const anotherAccessToken = generateFakeJwtToken(1000);
     const refreshToken = generateFakeJwtToken(2000);
-
-    // inject tokens to the request so we find them in the response
-    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
-        requestConfig.data = {
-            token: accessToken,
-            refreshToken: refreshToken
-        };
-        return requestConfig;
-    };
-    // move mock body response to data where ajs expects it
-    const onLoginResponse = (response: AjsResponse) => {
-        response.data = { ...response.data.body };
-        return response;
-    };
 
     const onRefreshRequest = (requestConfig: AjsRequestConfig) => {
         requestConfig.params = {
@@ -206,98 +71,35 @@ tap.test('Ajs jwtInit with refresh token', async t => {
         return response;
     };
 
-    ajs.jwtInit(baseUrl, onLoginRequest, onLoginResponse);
+    fakeJwtAjs(ajs, accessToken, refreshToken);
 
     ajs.onRefreshRequest = onRefreshRequest;
     ajs.onRefreshResponse = onRefreshResponse;
 
-    // change default values for the test
-    ajs.pathLogin = '/post';
-    ajs.pathRefresh = '/get';
-
-    t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
-
-    // see if in the request we have auth data
-    const path = '/headers';
-    const response = await ajs.get(path);
-    t.equal(
-        response.data.headers.authorization,
-        'Bearer ' + accessToken,
-        'Ajs have the correct authorization header'
-    );
+    await checkBearer(t, ajs, accessToken);
 
     // wait for the token to expire
     await new Promise(resolve => setTimeout(resolve, 3000));
-    // see if in the request we have auth data
-    const response2 = await ajs.get(path);
-    // have a authorization header
-    t.ok(response2, 'Ajs.get should return a response');
-    t.ok(response2.status, 'Ajs.get should return a status');
-    t.equal(response2.status, 200, 'Ajs.get should return a status of 200');
-    t.ok(response2.data, 'Ajs.get should return a data property');
-    t.ok(response2.data.headers, 'Ajs.get should return a headers property');
-    t.ok(
-        response2.data.headers.authorization,
-        'Ajs.get should return a headers property with authorization'
-    );
 
-    // but the token is not the first
-    t.equal(
-        response2.data.headers.authorization,
-        'Bearer ' + anotherAccessToken,
-        'Ajs have the correct authorization header'
-    );
-    t.end();
+    await checkBearer(t, ajs, anotherAccessToken);
 });
 
 /**
  * Test case for initializing JWT when tokens are expired.
  */
 tap.test('Ajs jwtInit when tokens expired', async t => {
-    t.equal(typeof ajs.jwtInit, 'function', 'Ajs.init should be a function');
-
-    const baseUrl = 'https://mockhttp.org';
-
     const accessToken = generateFakeJwtToken(12);
     const anotherAccessToken = generateFakeJwtToken(1000);
     const refreshToken = generateFakeJwtToken(12);
     const anotherRefreshToken = generateFakeJwtToken(2000);
 
-    // inject tokens to the request so we find them in the response
-    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
-        requestConfig.data = {
-            token: accessToken,
-            refreshToken: refreshToken
-        };
-        return requestConfig;
-    };
-    // move mock body response to data where ajs expects it
-    const onLoginResponse = (response: AjsResponse) => {
-        response.data = { ...response.data.body };
-        return response;
-    };
-
-    ajs.jwtInit(baseUrl, onLoginRequest, onLoginResponse);
-
-    // change default values for the test
-    ajs.pathLogin = '/post';
-    ajs.pathRefresh = '/get';
-
-    t.equal(ajs.defaults.baseURL, baseUrl, 'Ajs.init should set the baseURL');
-
-    // see if in the request we have auth data
-    const path = '/headers';
-    const response = await ajs.get(path);
-    t.equal(
-        response.data.headers.authorization,
-        'Bearer ' + accessToken,
-        'Ajs have the correct authorization header'
-    );
+    fakeJwtAjs(ajs, accessToken, refreshToken);
+    await checkBearer(t, ajs, accessToken);
 
     // wait for the token to expire
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // set a  onLoginRequest to inject the new tokens
+    // set a new onLoginRequest to inject the new tokens
     ajs.onLoginRequest = (requestConfig: AjsRequestConfig) => {
         requestConfig.data = {
             token: anotherAccessToken,
@@ -306,24 +108,5 @@ tap.test('Ajs jwtInit when tokens expired', async t => {
         return requestConfig;
     };
 
-    // see if in the request we have auth data
-    const response2 = await ajs.get(path);
-    // have a authorization header
-    t.ok(response2, 'Ajs.get should return a response');
-    t.ok(response2.status, 'Ajs.get should return a status');
-    t.equal(response2.status, 200, 'Ajs.get should return a status of 200');
-    t.ok(response2.data, 'Ajs.get should return a data property');
-    t.ok(response2.data.headers, 'Ajs.get should return a headers property');
-    t.ok(
-        response2.data.headers.authorization,
-        'Ajs.get should return a headers property with authorization'
-    );
-
-    // but the token is not the first
-    t.equal(
-        response2.data.headers.authorization,
-        'Bearer ' + anotherAccessToken,
-        'Ajs have the correct authorization header'
-    );
-    t.end();
+    await checkBearer(t, ajs, anotherAccessToken);
 });
