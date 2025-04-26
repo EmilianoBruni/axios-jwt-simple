@@ -70,7 +70,9 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
         },
         error => {
             // Handle errors using the custom error interceptor
-            return interceptErrors(error);
+            const config = error.config;
+            if (config && config.raw) return Promise.reject(error);
+            return Promise.reject(interceptErrors(error));
         }
     );
 
