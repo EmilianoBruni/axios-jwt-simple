@@ -13,7 +13,7 @@ The peculiarity is that if you don't use automatic JWT management (`jwtInit` met
 
 ## Features
 
-- **Automatic Token Management (ATM)**: Automatically attaches JWT tokens to Axios requests.
+- **Automatic Token Management**: Automatically attaches JWT tokens to Axios requests.
 - **Token Refresh**: Handles token expiration and refresh seamlessly.
 - **Customizable**: Easily configure token storage and refresh logic.
 - **CommonJS and TypeScript Support**: Works with both CommonJS and ES Modules, with full TypeScript type definitions.
@@ -87,9 +87,9 @@ ajsAttach(axios).jwtInit(baseUrl);
 // and now axios have ATM inside
 ```
 
-## Automatic token managed
+## Automatic token Management (ATM)
 
-In this mode, ajs automatically manage jwt and refresh token. 
+In ATM mode, ajs automatically manage jwt and refresh token. 
 
 If refresh token and access token don't exist or are invalid/expired, ajs make a POST to `ajs.pathLogin` to get new access and refresh tokens.
 
@@ -222,6 +222,19 @@ Headers: Object [AxiosHeaders] {
   'content-length': '42',
   connection: 'keep-alive',
   ...
+```
+
+In this case, a `try...catch` handled an error structure (`AjsErrorResponse`) with this signature
+
+```ts
+type AjsErrorResponse = {
+    error: boolean;       // Indicates if an error occurred
+    messageError: string; // Optional error message
+    status: number;       // HTTP status code
+    statusText: string;   // HTTP status text
+    statusCode?: number;  // Optional status code
+    message?: string;     // Error message
+};
 ```
 
 ## TypeScript Support
