@@ -24,6 +24,18 @@ export type AjsOnRequest = (
 export type AjsOnResponse = (response: AjsResponse) => AjsResponse;
 
 /**
+ * Type definition for a function that handles errors.
+ */
+export type AjsErrorResponse = {
+    error: boolean; // Indicates if an error occurred
+    messageError: string; // Optional error message
+    status: number; // HTTP status code
+    statusText: string; // HTTP status text
+    statusCode?: number; // Optional status code
+    message?: string; // Error message
+};
+
+/**
  * Interface extending AxiosStatic with JWT-related properties and methods.
  */
 export interface AjsStatic extends AxiosStatic {
