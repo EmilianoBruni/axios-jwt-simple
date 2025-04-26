@@ -13,7 +13,7 @@ The peculiarity is that if you don't use automatic JWT management (`jwtInit` met
 
 ## Features
 
-- **Automatic Token Management (ATM) **: Automatically attaches JWT tokens to Axios requests.
+- **Automatic Token Management (ATM)**: Automatically attaches JWT tokens to Axios requests.
 - **Token Refresh**: Handles token expiration and refresh seamlessly.
 - **Customizable**: Easily configure token storage and refresh logic.
 - **CommonJS and TypeScript Support**: Works with both CommonJS and ES Modules, with full TypeScript type definitions.
@@ -205,6 +205,23 @@ const ajs = require('axios-jwt-simple');
 const baseUrl = 'https://mockhttp.org/';
 
 ajs.jwtInit(baseUrl)
+```
+
+## Error interceptor
+
+Both ATM and not-ATM mode ajs add an error interceptor that print detailed error informatio in error console 
+
+```ts
+🟥 ERROR RESPONSE
+URL: /status/404
+Status: 404 - Not Found
+Data: { status: 'Response with status code 404' }
+Headers: Object [AxiosHeaders] {
+  date: 'Sat, 26 Apr 2025 19:20:30 GMT',
+  "content-type": 'application/json; charset=utf-8',
+  'content-length': '42',
+  connection: 'keep-alive',
+  ...
 ```
 
 ## TypeScript Support
