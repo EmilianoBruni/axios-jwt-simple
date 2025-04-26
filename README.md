@@ -13,7 +13,7 @@ The peculiarity is that if you don't use automatic JWT management (`jwtInit` met
 
 ## Features
 
-- **Automatic Token Management**: Automatically attaches JWT tokens to Axios requests.
+- **Automatic Token Management (ATM) **: Automatically attaches JWT tokens to Axios requests.
 - **Token Refresh**: Handles token expiration and refresh seamlessly.
 - **Customizable**: Easily configure token storage and refresh logic.
 - **CommonJS and TypeScript Support**: Works with both CommonJS and ES Modules, with full TypeScript type definitions.
@@ -71,6 +71,22 @@ const baseUrl = 'https://mockhttp.org/';
 
 ajs.jwtInit(baseUrl)
 ```
+
+If you just have an axios instance you can magically upgrade it to ATM with `ajsAttach` method
+
+```ts
+import axios as 'axios';
+
+const ajs = ajsAttach(axios);
+ajs.jwtInit(baseUrl)
+
+// or simply
+
+ajsAttach(axios).jwtInit(baseUrl);
+
+// and now axios have ATM inside
+```
+
 ## Automatic token managed
 
 In this mode, ajs automatically manage jwt and refresh token. 
@@ -91,21 +107,93 @@ where
 * `onLoginRequest`: Optional custom handler for login requests to alter config request when `pathLogin` is called (see `onLoginRequest` method).
 * `onLoginResponse`: Optional custom handler for login responses to alter response when `pathLogin` respond (see `onLoginResponse` method)
 
-### onLoginRequest
+### onLoginRequest [default: `config => config`]
 
-### onLoginResponse
+This is a config callback inside the `axios.interceptor.request.use` when login page has called.
 
-### onRefreshRequest
+It's used to inject auth data to login page. 
 
-### onRefreshResponse
+As an example
+
+```ts
+ajs.jwtInit(baseUrl, (config: AjsRequestConfig) => {
+    config.data = {
+        username: 'user', 
+        password: 'pass'
+    };
+    return config;
+});
+```
+
+### onLoginResponse [default: `response => response`]
+
+To parse access and refresh token, ajs expect that these are returned by `POST pathLogin` in this form
+
+```json
+{
+	"token": "...",
+	"refreshToken": "..."
+}
+```
+If your login page return these information in a different way you can use this method to reformat infos.
+
+As an example, if your tokens are returned as accessToken and renewToken these allow things to work
+
+```ts
+ajs.onLoginResponse = (response: AjsResponse) => {
+    response.data.token = response.data.accessToken;
+    response.data.refreshToken = response.data.renewToken
+    return response;
+};
+
+// or in jwtInit as
+
+ajs.jwtInit(baseUrl, config => config, (response: AjsResponse) => {
+    response.data.token = response.data.accessToken;
+    response.data.refreshToken = response.data.renewToken
+    return response;
+});
+```
+
+### onRefreshRequest [default: `config => config`]
+
+This is a config callback inside the `axios.interceptor.request.use` when refresh page has called.
+
+Usually don't use it because ajs automatically inject the Authorization Bearer with refreshToken when `GET pathRefresh` has called
+
+### onRefreshResponse  [default: `response => response`]
+
+To parse access token, ajs expect that these are returned by `GET pathRefresh` in this form
+
+```json
+{
+	"token": "...",
+}
+```
+If your refresh page return these information in a different way you can use this method to reformat infos.
+
+As an example, if your tokens are returned in an `X-ACCESS-TOKEN` header your onRefreshResponse must be something like this
+
+```ts
+ajs.onRefreshResponse = (response: AjsResponse) => {
+    response.data = { token: response.headers['X-ACCESS-TOKEN'] };
+    return response;
+};
+```
 
 ## Parameters
 
-### pathLogin
+### pathLogin [default: `/auth/token`]
 
-### pathRefresh
+Url used to get a new access and refresh tokens via POST verb.
 
-### pathLogout
+### pathRefresh [default: `/auth/refresh`]
+
+Url used to get a new access token via GET verb
+
+### pathLogout [default: `/auth/logout`] [Currently not implemented]
+
+Url used to invalidate server-side access and refresh tokens.
 
 ## CommonJS Support
 
@@ -121,21 +209,13 @@ ajs.jwtInit(baseUrl)
 
 ## TypeScript Support
 
-`axios-jwt-simple` is fully typed and works seamlessly with TypeScript. 
+`axios-jwt-simple` is written in Typescript and so is fully typed and works seamlessly with TypeScript. 
 
 ## FAQ
-
-### How does `axios-jwt-simple` handle token expiration?
-
-The library allows you to define a `refreshToken` function that is called when a token expires. This function should handle refreshing the token and returning a new one.
 
 ### Can I use this library with React or Vue?
 
 Yes, `axios-jwt-simple` works with any JavaScript framework or library that uses Axios for HTTP requests.
-
-### Is the library compatible with server-side rendering (SSR)?
-
-Yes, but you need to ensure that token storage and retrieval are compatible with your SSR environment (e.g., using cookies instead of `localStorage`).
 
 ## Links
 
@@ -146,6 +226,6 @@ Yes, but you need to ensure that token storage and retrieval are compatible with
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](https://github.com/your-repo/axios-jwt-simple/blob/main/CONTRIBUTING.md) for more details.
+We welcome contributions! 
 
 
