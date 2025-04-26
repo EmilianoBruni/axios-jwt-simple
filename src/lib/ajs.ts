@@ -1,4 +1,4 @@
-import { AxiosStatic } from 'axios';
+import { AxiosInstance } from 'axios';
 import interceptErrors from '@/lib/interceptErrors.js';
 import type {
     AjsOnRequest,
@@ -13,8 +13,15 @@ import {
     interceptJwtResponse
 } from '@/lib/interceptJwtSession.js';
 
-const ajsAttach = (axiosInstance: AxiosStatic) => {
+const ajsAttach = (axiosInstance: AxiosInstance) => {
     const ajs = axiosInstance as AjsStatic;
+
+    if (ajs.jwtMode !== undefined && ajs.jwtMode[0] !== -1) {
+        console.warn(
+            '🟡 JWT mode is already enabled on this axios instance. Avoid to call jwtInit() multiple times on same axios istance. Jwt config will be reset'
+        );
+        clearAjsInterceptors(ajs);
+    }
 
     // Default paths for authentication-related endpoints
     ajs.pathLogin = '/auth/token'; // Endpoint for login
@@ -84,13 +91,19 @@ const ajsAttach = (axiosInstance: AxiosStatic) => {
             );
         } else if (!mode && ajs.jwtMode[0] !== -1) {
             // Disable JWT mode: remove interceptors
-            ajs.interceptors.request.eject(ajs.jwtMode[0]);
-            ajs.interceptors.response.eject(ajs.jwtMode[1]);
-            ajs.jwtMode = [-1, -1]; // Reset JWT mode state
+            clearAjsInterceptors(ajs);
         }
     };
 
     return ajs;
+};
+
+const clearAjsInterceptors = (ajs: AjsStatic) => {
+    if (ajs.jwtMode[0] !== -1) {
+        ajs.interceptors.request.eject(ajs.jwtMode[0]);
+        ajs.interceptors.response.eject(ajs.jwtMode[1]);
+        ajs.jwtMode = [-1, -1]; // Reset JWT mode state
+    }
 };
 
 export default ajsAttach;
