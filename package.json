@@ -1,6 +1,6 @@
 {
   "name": "axios-jwt-simple",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
   "main": "dist/index.js",
   "scripts": {
