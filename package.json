@@ -4,7 +4,7 @@
   "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
   "main": "dist/index.js",
   "scripts": {
-    "test": "tap -j1 --allow-incomplete-coverage \"test/**/*.test.?(c)[tj]s\"",
+    "test": "tap -j4 --allow-incomplete-coverage \"test/**/*.test.?(c)[tj]s\"",
     "buildcjs": "rollup ./dist/index.js --file ./dist/index.cjs --format cjs",
     "build": "pnpm clean && pnpm tsc && pnpm tsc-alias",
     "clean": "rimraf ./dist .tap",
