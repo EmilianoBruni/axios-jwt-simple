@@ -249,10 +249,9 @@ Yes, `axios-jwt-simple` works with any JavaScript framework or library that uses
 
 ## Links
 
-- **Report Bugs**: [GitHub Issues](https://github.com/your-repo/axios-jwt-simple/issues)
-- **Feature Requests**: [GitHub Issues](https://github.com/your-repo/axios-jwt-simple/issues)
-- **Help and Support**: [GitHub Discussions](https://github.com/your-repo/axios-jwt-simple/discussions)
-- **Contributing**: [Contributing Guidelines](https://github.com/your-repo/axios-jwt-simple/blob/main/CONTRIBUTING.md)
+- **Report Bugs**: [GitHub Issues](https://github.com/EmilianoBruni/axios-jwt-simple/issues)
+- **Feature Requests**: [GitHub Issues](https://github.com/EmilianoBruni/axios-jwt-simple/issues)
+- **Help and Support**: [GitHub Discussions](https://github.com/EmilianoBruni/axios-jwt-simple)
 
 ## Contributing
 
