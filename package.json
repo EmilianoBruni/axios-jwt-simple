@@ -1,68 +1,67 @@
 {
-  "name": "axios-jwt-simple",
-  "version": "0.1.2",
-  "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "tap -j4 --allow-incomplete-coverage \"test/**/*.test.?(c)[tj]s\"",
-    "buildcjs": "rollup ./dist/index.js --file ./dist/index.cjs --format cjs",
-    "build": "pnpm clean && pnpm tsc && pnpm tsc-alias",
-    "clean": "rimraf ./dist .tap",
-    "lint": "eslint \"src/**/*.[jt]s?(x)\" \"test/**/*.?(c)[jt]s\"",
-    "lint:fix": "pnpm lint --fix",
-    "prepublishOnly": "pnpm lint:fix && pnpm build && pnpm buildcjs && pnpm test",
-    "test:ci": "pnpm prepublishOnly",
-    "tsc": "tsc -p tsconfig.build.json",
-    "tsc-alias": "tsc-alias -p tsconfig.build.json"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/EmilianoBruni/axios-jwt-simple.git"
-  },
-  "keywords": [
-    "nodejs",
-    "typescript"
-  ],
-  "author": "Emiliano Bruni <info@ebruni.it>",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/EmilianoBruni/axios-jwt-simple/issues"
-  },
-  "homepage": "https://github.com/EmilianoBruni/axios-jwt-simple#readme",
-  "type": "module",
-  "devDependencies": {
-    "@eslint/js": "^9.25.1",
-    "@tapjs/core": "^4.0.1",
-    "@tapjs/tsx": "^3.0.1",
-    "@tsconfig/node20": "^20.1.5",
-    "@types/node": "^22.15.2",
-    "eslint": "^9.25.1",
-    "eslint-config-prettier": "^10.1.2",
-    "eslint-plugin-prettier": "^5.2.6",
-    "globals": "^16.0.0",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.40.0",
-    "tap": "^21.1.0",
-    "tsc-alias": "^1.8.15",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.0"
-  },
-  "exports": {
-    "import": {
-      "default": "./dist/index.js",
-      "types": "./dist/types/index.d.js"
+    "name": "axios-jwt-simple",
+    "version": "0.1.2",
+    "description": "Library that simplifies client-side JWT (JSON Web Token) authentication using Axios",
+    "main": "dist/index.js",
+    "scripts": {
+        "test": "tap -j4 --allow-incomplete-coverage \"test/**/*.test.?(c)[tj]s\"",
+        "buildcjs": "rollup ./dist/index.js --file ./dist/index.cjs --format cjs",
+        "build": "pnpm clean && pnpm tsc && pnpm tsc-alias",
+        "clean": "rimraf ./dist .tap",
+        "lint": "eslint \"src/**/*.[jt]s?(x)\" \"test/**/*.?(c)[jt]s\"",
+        "lint:fix": "pnpm lint --fix",
+        "prepublishOnly": "pnpm lint:fix && pnpm build && pnpm buildcjs && pnpm test",
+        "test:ci": "pnpm prepublishOnly",
+        "tsc": "tsc -p tsconfig.build.json",
+        "tsc-alias": "tsc-alias -p tsconfig.build.json"
     },
-    "require": "./dist/index.cjs"
-  },
-  "dependencies": {
-    "axios": "^1.9.0"
-  },
-  "tap": {
-    "plugin": [
-      "@tapjs/tsx",
-      "!@tapjs/typescript"
-    ]
-  },
-  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f"
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/EmilianoBruni/axios-jwt-simple.git"
+    },
+    "keywords": [
+        "nodejs",
+        "typescript"
+    ],
+    "author": "Emiliano Bruni <info@ebruni.it>",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/EmilianoBruni/axios-jwt-simple/issues"
+    },
+    "homepage": "https://github.com/EmilianoBruni/axios-jwt-simple#readme",
+    "type": "module",
+    "devDependencies": {
+        "@eslint/js": "^9.25.1",
+        "@tapjs/core": "^4.0.1",
+        "@tapjs/tsx": "^3.0.1",
+        "@tsconfig/node20": "^20.1.5",
+        "@types/node": "^22.15.2",
+        "eslint": "^9.25.1",
+        "eslint-config-prettier": "^10.1.2",
+        "eslint-plugin-prettier": "^5.2.6",
+        "globals": "^16.0.0",
+        "rimraf": "^6.0.1",
+        "rollup": "^4.40.0",
+        "tap": "^21.1.0",
+        "tsc-alias": "^1.8.15",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.31.0"
+    },
+    "exports": {
+        "import": {
+            "default": "./dist/index.js",
+            "types": "./dist/types/index.d.js"
+        },
+        "require": "./dist/index.cjs"
+    },
+    "dependencies": {
+        "axios": "^1.9.0"
+    },
+    "tap": {
+        "plugin": [
+            "@tapjs/tsx",
+            "!@tapjs/typescript"
+        ]
+    }
 }
