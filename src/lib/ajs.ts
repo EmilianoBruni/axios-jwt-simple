@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios';
 import interceptErrors from '@/lib/interceptErrors.js';
+import { debugWarn, isDebugEnabled } from '@/lib/debug.js';
 import type {
     AjsOnRequest,
     AjsOnResponse,
@@ -17,7 +18,8 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
     const ajs = axiosInstance as AjsStatic;
 
     if (ajs.jwtMode !== undefined && ajs.jwtMode[0] !== -1) {
-        console.warn(
+        debugWarn(
+            ajs.debug,
             '🟡 JWT mode is already enabled on this axios instance. Avoid to call jwtInit() multiple times on same axios istance. Jwt config will be reset'
         );
         clearAjsInterceptors(ajs);
@@ -33,6 +35,9 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
     ajs.onLoginResponse = (response: AjsResponse) => response; // Handle login response
     ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => requestConfig; // Modify refresh request
     ajs.onRefreshResponse = (response: AjsResponse) => response; // Handle refresh response
+
+    // Debug mode: disabled by default; enable via ajs.debug = true or AJS_DEBUG env variable
+    if (ajs.debug === undefined) ajs.debug = false;
 
     // JWT mode state: stores interceptor IDs or -1 if not active
     ajs.jwtMode = [-1, -1];
@@ -57,7 +62,7 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
             if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;
             if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
         } catch (error) {
-            console.error('Error initializing JWT:', error);
+            debugWarn(ajs.debug, 'Error initializing JWT:', error);
             throw new Error('Failed to initialize JWT');
         }
     };
@@ -72,7 +77,9 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
             // Handle errors using the custom error interceptor
             const config = error.config;
             if (config && config.raw) return Promise.reject(error);
-            return Promise.reject(interceptErrors(error));
+            return Promise.reject(
+                interceptErrors(error, isDebugEnabled(ajs.debug))
+            );
         }
     );
 

@@ -101,4 +101,11 @@ export interface AjsStatic extends AxiosStatic {
      * @param mode - `true` to enable JWT mode, `false` to disable it.
      */
     setJwtMode: (mode: boolean) => void;
+
+    /**
+     * Enables or disables debug logging. When `false` (default), warnings and
+     * errors are silenced. Can also be enabled by setting the `AJS_DEBUG`
+     * environment variable.
+     */
+    debug: boolean;
 }
