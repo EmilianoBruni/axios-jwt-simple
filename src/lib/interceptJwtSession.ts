@@ -102,7 +102,7 @@ const login = async (ajs: AjsStatic) => {
             '🟥 Error while logging in: %s',
             error instanceof Error ? error.message : error
         );
-        throw new Error('Error while logging in');
+        throw new Error('Error while logging in', { cause: error });
     }
 };
 
@@ -130,7 +130,9 @@ const refresh = async (ajs: AjsStatic) => {
             '🟥 Error while refreshing access token: %s',
             error instanceof Error ? error.message : error
         );
-        throw new Error('Error while refreshing access token');
+        throw new Error('Error while refreshing access token', {
+            cause: error
+        });
     }
 };
 

@@ -63,7 +63,7 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
             if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
         } catch (error) {
             debugWarn(ajs.debug, 'Error initializing JWT:', error);
-            throw new Error('Failed to initialize JWT');
+            throw new Error('Failed to initialize JWT', { cause: error });
         }
     };
 
