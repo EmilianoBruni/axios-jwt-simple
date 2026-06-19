@@ -195,6 +195,27 @@ Url used to get a new access token via GET verb
 
 Url used to invalidate server-side access and refresh tokens.
 
+### debug [default: `false`]
+
+Controls whether internal warnings and errors are printed to the console. When `false` (the default), all console output from `axios-jwt-simple` is suppressed and exceptions are propagated silently to the caller. When `true`, detailed messages are printed to the console to aid debugging.
+
+You can enable debug mode in two ways:
+
+**Via the instance property:**
+
+```ts
+ajs.debug = true;
+ajs.jwtInit(baseUrl);
+```
+
+**Via the `AJS_DEBUG` environment variable:**
+
+```sh
+AJS_DEBUG=1 node your-app.js
+```
+
+The environment variable takes effect even if `ajs.debug` is `false`, making it easy to enable debug output without changing code.
+
 ## CommonJS Support
 
 If you're using CommonJS, you can import the library as follows:
@@ -209,7 +230,7 @@ ajs.jwtInit(baseUrl)
 
 ## Error interceptor
 
-Both ATM and not-ATM mode ajs add an error interceptor that print detailed error informatio in error console 
+Both ATM and not-ATM mode ajs add an error interceptor. When [`debug`](#debug-default-false) is enabled, it prints detailed error information to the error console:
 
 ```ts
 🟥 ERROR RESPONSE
@@ -224,7 +245,7 @@ Headers: Object [AxiosHeaders] {
   ...
 ```
 
-In this case, a `try...catch` handled an error structure (`AjsErrorResponse`) with this signature
+Regardless of debug mode, a `try...catch` will receive an error structure (`AjsErrorResponse`) with this signature:
 
 ```ts
 type AjsErrorResponse = {

@@ -1,4 +1,5 @@
 import { AjsRequestConfig, AjsResponse, AjsStatic } from '@/types.js';
+import { debugWarn, debugError } from '@/lib/debug.js';
 
 /**
  * Intercepts outgoing requests to handle JWT tokens.
@@ -24,7 +25,7 @@ const interceptJwtRequest = async (
 
         // If the request is for the refresh endpoint and the refresh token is valid
         if (config.url === ajs.pathRefresh && ajs.sS.isRefreshTokenValid()) {
-            // Add the refresh token as a Bearer token in the Authorization header
+            // Add the refresh token as a ****** in the Authorization header
             config.headers['Authorization'] = `Bearer ${sRT.v}`;
             let lconfig = config;
             lconfig = ajs.onRefreshRequest(lconfig); // Modify the refresh request
@@ -33,7 +34,8 @@ const interceptJwtRequest = async (
 
         // If the refresh token is not valid, attempt to log in
         if (!ajs.sS.isRefreshTokenValid()) {
-            console.warn(
+            debugWarn(
+                ajs.debug,
                 '🟡 Refresh token expired or does not exist. Try to refresh'
             );
             await login(ajs);
@@ -41,7 +43,8 @@ const interceptJwtRequest = async (
 
         // If the refresh token is still not valid after login
         if (!ajs.sS.isRefreshTokenValid()) {
-            console.error(
+            debugError(
+                ajs.debug,
                 '🟥 Refresh token invalid after login. This is a problem.'
             );
             throw new Error(
@@ -51,13 +54,14 @@ const interceptJwtRequest = async (
 
         // If the access token is not valid, attempt to refresh it
         if (!ajs.sS.isAccessTokenValid()) {
-            console.warn('🟡 Access token expired. Try to refresh');
+            debugWarn(ajs.debug, '🟡 Access token expired. Try to refresh');
             await refresh(ajs);
         }
 
         // If the access token is still not valid after refresh
         if (!ajs.sS.isAccessTokenValid()) {
-            console.error(
+            debugError(
+                ajs.debug,
                 '🟥 Access token invalid after renew. This is a problem.'
             );
             throw new Error(
@@ -65,13 +69,13 @@ const interceptJwtRequest = async (
             );
         }
 
-        // If the access token is valid, add it as a Bearer token in the Authorization header
+        // If the access token is valid, add it as a ****** in the Authorization header
         const sAT = ajs.sS.getAccessToken();
         config.headers['Authorization'] = `Bearer ${sAT.v}`;
 
         return config;
     } catch (error) {
-        console.error('Error in interceptJwtRequest:', error);
+        debugError(ajs.debug, 'Error in interceptJwtRequest:', error);
         throw error;
     }
 };
@@ -89,11 +93,12 @@ const login = async (ajs: AjsStatic) => {
             ajs.sS.setAccessToken(response.data.token);
             ajs.sS.setRefreshToken(response.data.refreshToken);
         } else {
-            console.error('🟥 Login failed. No token in response');
+            debugError(ajs.debug, '🟥 Login failed. No token in response');
             throw new Error('Login failed. No token in response');
         }
     } catch (error) {
-        console.error(
+        debugError(
+            ajs.debug,
             '🟥 Error while logging in: %s',
             error instanceof Error ? error.message : error
         );
@@ -113,11 +118,15 @@ const refresh = async (ajs: AjsStatic) => {
             // Update the access token
             ajs.sS.setAccessToken(response.data.token);
         } else {
-            console.error('🟥 Refresh token failed. No token in response');
+            debugError(
+                ajs.debug,
+                '🟥 Refresh token failed. No token in response'
+            );
             throw new Error('Refresh token failed. No token in response');
         }
     } catch (error) {
-        console.error(
+        debugError(
+            ajs.debug,
             '🟥 Error while refreshing access token: %s',
             error instanceof Error ? error.message : error
         );
