@@ -69,7 +69,7 @@ import ajs from 'axios-jwt-simple';
 
 const baseUrl = 'https://mockhttp.org/';
 
-ajs.jwtInit(baseUrl)
+ajs.jwtInit(baseUrl);
 ```
 
 If you just have an axios instance you can magically upgrade it to ATM with `ajsAttach` method
@@ -89,7 +89,7 @@ ajsAttach(axios).jwtInit(baseUrl);
 
 ## Automatic token Management (ATM)
 
-In ATM mode, ajs automatically manage jwt and refresh token. 
+In ATM mode, ajs automatically manage jwt and refresh token.
 
 If refresh token and access token don't exist or are invalid/expired, ajs make a POST to `ajs.pathLogin` to get new access and refresh tokens.
 
@@ -101,24 +101,24 @@ If a resource has called, ajs get a valid access token with the previous logic a
 
 ### .jwtInit: ( urlBase: string, onLoginRequest?: AjsOnRequest, onLoginResponse?: AjsOnResponse) => void;
 
-where 
+where
 
-* `urlBase`: The base URL for the API.
-* `onLoginRequest`: Optional custom handler for login requests to alter config request when `pathLogin` is called (see `onLoginRequest` method).
-* `onLoginResponse`: Optional custom handler for login responses to alter response when `pathLogin` respond (see `onLoginResponse` method)
+- `urlBase`: The base URL for the API.
+- `onLoginRequest`: Optional custom handler for login requests to alter config request when `pathLogin` is called (see `onLoginRequest` method).
+- `onLoginResponse`: Optional custom handler for login responses to alter response when `pathLogin` respond (see `onLoginResponse` method)
 
 ### onLoginRequest [default: `config => config`]
 
 This is a config callback inside the `axios.interceptor.request.use` when login page has called.
 
-It's used to inject auth data to login page. 
+It's used to inject auth data to login page.
 
 As an example
 
 ```ts
 ajs.jwtInit(baseUrl, (config: AjsRequestConfig) => {
     config.data = {
-        username: 'user', 
+        username: 'user',
         password: 'pass'
     };
     return config;
@@ -131,10 +131,11 @@ To parse access and refresh token, ajs expect that these are returned by `POST p
 
 ```json
 {
-	"token": "...",
-	"refreshToken": "..."
+    "token": "...",
+    "refreshToken": "..."
 }
 ```
+
 If your login page return these information in a different way you can use this method to reformat infos.
 
 As an example, if your tokens are returned as accessToken and renewToken these allow things to work
@@ -142,17 +143,21 @@ As an example, if your tokens are returned as accessToken and renewToken these a
 ```ts
 ajs.onLoginResponse = (response: AjsResponse) => {
     response.data.token = response.data.accessToken;
-    response.data.refreshToken = response.data.renewToken
+    response.data.refreshToken = response.data.renewToken;
     return response;
 };
 
 // or in jwtInit as
 
-ajs.jwtInit(baseUrl, config => config, (response: AjsResponse) => {
-    response.data.token = response.data.accessToken;
-    response.data.refreshToken = response.data.renewToken
-    return response;
-});
+ajs.jwtInit(
+    baseUrl,
+    config => config,
+    (response: AjsResponse) => {
+        response.data.token = response.data.accessToken;
+        response.data.refreshToken = response.data.renewToken;
+        return response;
+    }
+);
 ```
 
 ### onRefreshRequest [default: `config => config`]
@@ -161,15 +166,16 @@ This is a config callback inside the `axios.interceptor.request.use` when refres
 
 Usually don't use it because ajs automatically inject the Authorization Bearer with refreshToken when `GET pathRefresh` has called
 
-### onRefreshResponse  [default: `response => response`]
+### onRefreshResponse [default: `response => response`]
 
 To parse access token, ajs expect that these are returned by `GET pathRefresh` in this form
 
 ```json
 {
-	"token": "...",
+    "token": "..."
 }
 ```
+
 If your refresh page return these information in a different way you can use this method to reformat infos.
 
 As an example, if your tokens are returned in an `X-ACCESS-TOKEN` header your onRefreshResponse must be something like this
@@ -225,7 +231,7 @@ const ajs = require('axios-jwt-simple');
 
 const baseUrl = 'https://mockhttp.org/';
 
-ajs.jwtInit(baseUrl)
+ajs.jwtInit(baseUrl);
 ```
 
 ## Error interceptor
@@ -249,18 +255,18 @@ Regardless of debug mode, a `try...catch` will receive an error structure (`AjsE
 
 ```ts
 type AjsErrorResponse = {
-    error: boolean;       // Indicates if an error occurred
+    error: boolean; // Indicates if an error occurred
     messageError: string; // Optional error message
-    status: number;       // HTTP status code
-    statusText: string;   // HTTP status text
-    statusCode?: number;  // Optional status code
-    message?: string;     // Error message
+    status: number; // HTTP status code
+    statusText: string; // HTTP status text
+    statusCode?: number; // Optional status code
+    message?: string; // Error message
 };
 ```
 
 ## TypeScript Support
 
-`axios-jwt-simple` is written in Typescript and so is fully typed and works seamlessly with TypeScript. 
+`axios-jwt-simple` is written in Typescript and so is fully typed and works seamlessly with TypeScript.
 
 ## FAQ
 
@@ -276,6 +282,4 @@ Yes, `axios-jwt-simple` works with any JavaScript framework or library that uses
 
 ## Contributing
 
-We welcome contributions! 
-
-
+We welcome contributions!
