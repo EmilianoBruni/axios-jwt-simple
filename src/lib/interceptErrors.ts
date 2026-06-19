@@ -19,16 +19,23 @@ export default (error: AxiosError, debug: boolean): AjsErrorResponse => {
     if (response) {
         // The request was made, and the server responded with a status code
         // that falls outside the range of 2xx
-        debugError(debug, '🟥 \x1b[31m%s\x1b[0m', 'ERROR AXIOS RESPONSE');
-        debugError(debug, '%s: \x1b[36m%s\x1b[0m', 'URL', request.path);
+        debugError(debug, `🟥 \x1b[31mERROR AXIOS RESPONSE\x1b[0m`);
         debugError(
             debug,
-            'Status: \x1b[33m%s\x1b[0m - %s',
-            response.status,
-            response.statusText
+            `URL: \x1b[36m${request.path || request.responseURL}\x1b[0m`
         );
-        debugError(debug, 'Data:', response.data);
-        debugError(debug, 'Headers:', response.headers);
+        debugError(
+            debug,
+            `Status: \x1b[33m${response.status}\x1b[0m - ${response.statusText}`
+        );
+        debugError(
+            debug,
+            `response.data: \x1b[36m${JSON.stringify(response.data, null, 2)}\x1b[0m`
+        );
+        debugError(
+            debug,
+            `response.headers: \x1b[36m${JSON.stringify(response.headers, null, 2)}\x1b[0m`
+        );
 
         // Add error details to the response data
         const errorResponse: AjsErrorResponse = {
@@ -42,9 +49,9 @@ export default (error: AxiosError, debug: boolean): AjsErrorResponse => {
         return errorResponse;
     } else if (request) {
         // The request was made, but no response was received
-        debugError(debug, '🟥 \x1b[31m%s\x1b[0m', 'REQUEST ERROR');
-        debugError(debug, '%s: \x1b[36m%s\x1b[0m', 'URL', request._currentUrl);
-        debugError(debug, '%s: \x1b[36m%s\x1b[0m', 'Cause', message);
+        debugError(debug, `🟥 \x1b[31mREQUEST ERROR\x1b[0m`);
+        debugError(debug, `URL: \x1b[36m${request._currentUrl}\x1b[0m`);
+        debugError(debug, `Cause: \x1b[36m${message}\x1b[0m`);
 
         const errorResponse: AjsErrorResponse = {
             error: true,
@@ -55,8 +62,8 @@ export default (error: AxiosError, debug: boolean): AjsErrorResponse => {
         return errorResponse;
     } else {
         // Something happened in setting up the request that triggered an error
-        debugError(debug, '🟥 \x1b[31m%s\x1b[0m', 'UNKNOWN ERROR');
-        debugError(debug, '%s: \x1b[36m%s\x1b[0m', 'Cause', message);
+        debugError(debug, `🟥 \x1b[31mUNKNOWN ERROR\x1b[0m`);
+        debugError(debug, `Cause: \x1b[36m${message}\x1b[0m`);
 
         // Return a standardized error object for unknown errors
         const errorResponse: AjsErrorResponse = {
