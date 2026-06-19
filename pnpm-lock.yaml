@@ -21,9 +21,9 @@ importers:
       '@tapjs/tsx':
         specifier: ^3.0.1
         version: 3.0.1(@tapjs/core@4.0.1(@types/node@25.9.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      '@tsconfig/node20':
-        specifier: ^20.1.9
-        version: 20.1.9
+      '@tsconfig/node24':
+        specifier: ^24.0.4
+        version: 24.0.4
       '@types/node':
         specifier: ^25.9.3
         version: 25.9.3
@@ -707,6 +707,9 @@ packages:
 
   '@tsconfig/node20@20.1.9':
     resolution: {integrity: sha512-IjlTv1RsvnPtUcjTqtVsZExKVq+KQx4g5pCP5tI7rAs6Xesl2qFwSz/tPDBC4JajkL/MlezBu3gPUwqRHl+RIg==}
+
+  '@tsconfig/node24@24.0.4':
+    resolution: {integrity: sha512-2A933l5P5oCbv6qSxHs7ckKwobs8BDAe9SJ/Xr2Hy+nDlwmLE1GhFh/g/vXGRZWgxBg9nX/5piDtHR9Dkw/XuA==}
 
   '@tufjs/canonical-json@2.0.0':
     resolution: {integrity: sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA==}
@@ -2865,6 +2868,8 @@ snapshots:
   '@tsconfig/node18@18.2.6': {}
 
   '@tsconfig/node20@20.1.9': {}
+
+  '@tsconfig/node24@24.0.4': {}
 
   '@tufjs/canonical-json@2.0.0': {}
 

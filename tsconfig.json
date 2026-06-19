@@ -1,5 +1,5 @@
 {
-    "extends": "@tsconfig/node20/tsconfig.json",
+    "extends": "@tsconfig/node24/tsconfig.json",
     "compilerOptions": {
         "rootDir": "./" /* Base directory to resolve non-relative module names. */,
         "declaration": true /* Generate .d.ts files from TypeScript and JavaScript files in your project. */,
