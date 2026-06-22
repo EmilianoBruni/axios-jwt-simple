@@ -110,3 +110,70 @@ tap.test('Ajs jwtInit when tokens expired', async t => {
 
     await checkBearer(t, ajs, anotherAccessToken);
 });
+
+tap.test('Ajs jwtInit token update callbacks', async t => {
+    const initialAccessToken = generateFakeJwtToken(12);
+    const refreshedAccessToken = generateFakeJwtToken(1000);
+    const initialRefreshToken = generateFakeJwtToken(2000);
+
+    const accessUpdates: string[] = [];
+    const refreshUpdates: string[] = [];
+
+    const onLoginRequest = (requestConfig: AjsRequestConfig) => {
+        requestConfig.data = {
+            token: initialAccessToken,
+            refreshToken: initialRefreshToken
+        };
+        return requestConfig;
+    };
+
+    const onLoginResponse = (response: AjsResponse) => {
+        response.data = { ...response.data.body };
+        return response;
+    };
+
+    ajs.jwtInit(
+        'https://mockhttp.org',
+        onLoginRequest,
+        onLoginResponse,
+        token => {
+            accessUpdates.push(token);
+        },
+        token => {
+            refreshUpdates.push(token);
+        }
+    );
+
+    ajs.pathLogin = '/post';
+    ajs.pathRefresh = '/get';
+
+    ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => {
+        requestConfig.params = {
+            token: refreshedAccessToken
+        };
+        return requestConfig;
+    };
+
+    ajs.onRefreshResponse = (response: AjsResponse) => {
+        response.data = { ...response.data.queryParams };
+        return response;
+    };
+
+    // Triggers login flow and should update both access and refresh tokens.
+    await checkBearer(t, ajs, initialAccessToken);
+
+    // wait for the token to expire so refresh flow runs
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await checkBearer(t, ajs, refreshedAccessToken);
+
+    t.same(
+        accessUpdates,
+        [initialAccessToken, refreshedAccessToken],
+        'access token callback should be called for login and refresh updates'
+    );
+    t.same(
+        refreshUpdates,
+        [initialRefreshToken],
+        'refresh token callback should be called when login updates refresh token'
+    );
+});

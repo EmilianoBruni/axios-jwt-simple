@@ -99,13 +99,15 @@ If a resource has called, ajs get a valid access token with the previous logic a
 
 ## Methods
 
-### .jwtInit: ( urlBase: string, onLoginRequest?: AjsOnRequest, onLoginResponse?: AjsOnResponse) => void;
+### .jwtInit: ( urlBase: string, onLoginRequest?: AjsOnRequest, onLoginResponse?: AjsOnResponse, onAccessTokenUpdate?: (token: string) => void, onRefreshTokenUpdate?: (token: string) => void) => void;
 
 where
 
 - `urlBase`: The base URL for the API.
 - `onLoginRequest`: Optional custom handler for login requests to alter config request when `pathLogin` is called (see `onLoginRequest` method).
 - `onLoginResponse`: Optional custom handler for login responses to alter response when `pathLogin` respond (see `onLoginResponse` method)
+- `onAccessTokenUpdate`: Optional callback invoked every time access token is updated.
+- `onRefreshTokenUpdate`: Optional callback invoked every time refresh token is updated.
 
 ### onLoginRequest [default: `config => config`]
 

@@ -24,6 +24,11 @@ export type AjsOnRequest = (
 export type AjsOnResponse = (response: AjsResponse) => AjsResponse;
 
 /**
+ * Type definition for token update callbacks.
+ */
+export type AjsOnTokenUpdate = (token: string) => void;
+
+/**
  * Type definition for a function that handles errors.
  */
 export type AjsErrorResponse = {
@@ -48,7 +53,9 @@ export interface AjsStatic extends AxiosStatic {
     jwtInit: (
         urlBase: string,
         onLoginRequest?: AjsOnRequest,
-        onLoginResponse?: AjsOnResponse
+        onLoginResponse?: AjsOnResponse,
+        onAccessTokenUpdate?: AjsOnTokenUpdate,
+        onRefreshTokenUpdate?: AjsOnTokenUpdate
     ) => void;
 
     /**
@@ -70,6 +77,16 @@ export interface AjsStatic extends AxiosStatic {
      * Custom handler for refresh responses.
      */
     onRefreshResponse: AjsOnResponse;
+
+    /**
+     * Callback invoked whenever the access token is updated.
+     */
+    onAccessTokenUpdate: AjsOnTokenUpdate;
+
+    /**
+     * Callback invoked whenever the refresh token is updated.
+     */
+    onRefreshTokenUpdate: AjsOnTokenUpdate;
 
     /**
      * Path for the login endpoint.

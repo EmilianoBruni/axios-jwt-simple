@@ -4,6 +4,7 @@ import { debugWarn, isDebugEnabled } from '@/lib/debug.js';
 import type {
     AjsOnRequest,
     AjsOnResponse,
+    AjsOnTokenUpdate,
     AjsRequestConfig,
     AjsResponse,
     AjsStatic
@@ -35,6 +36,8 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
     ajs.onLoginResponse = (response: AjsResponse) => response; // Handle login response
     ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => requestConfig; // Modify refresh request
     ajs.onRefreshResponse = (response: AjsResponse) => response; // Handle refresh response
+    ajs.onAccessTokenUpdate = (_token: string) => undefined;
+    ajs.onRefreshTokenUpdate = (_token: string) => undefined;
 
     // Debug mode: disabled by default; enable via ajs.debug = true or AJS_DEBUG env variable
     if (ajs.debug === undefined) ajs.debug = false;
@@ -51,7 +54,9 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
     ajs.jwtInit = function (
         urlBase: string,
         onLoginRequest?: AjsOnRequest,
-        onLoginResponse?: AjsOnResponse
+        onLoginResponse?: AjsOnResponse,
+        onAccessTokenUpdate?: AjsOnTokenUpdate,
+        onRefreshTokenUpdate?: AjsOnTokenUpdate
     ) {
         try {
             ajs.defaults.baseURL = urlBase; // Set the base URL for all requests
@@ -61,6 +66,10 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
             // Set custom handlers if provided
             if (onLoginRequest) ajs.onLoginRequest = onLoginRequest;
             if (onLoginResponse) ajs.onLoginResponse = onLoginResponse;
+            if (onAccessTokenUpdate)
+                ajs.onAccessTokenUpdate = onAccessTokenUpdate;
+            if (onRefreshTokenUpdate)
+                ajs.onRefreshTokenUpdate = onRefreshTokenUpdate;
         } catch (error) {
             debugWarn(ajs.debug, 'Error initializing JWT:', error);
             throw new Error('Failed to initialize JWT', { cause: error });

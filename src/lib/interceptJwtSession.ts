@@ -91,7 +91,9 @@ const login = async (ajs: AjsStatic) => {
         if (response.status === 200 && response.data && response.data.token) {
             // Update the access and refresh tokens
             ajs.sS.setAccessToken(response.data.token);
+            ajs.onAccessTokenUpdate(response.data.token);
             ajs.sS.setRefreshToken(response.data.refreshToken);
+            ajs.onRefreshTokenUpdate(response.data.refreshToken);
         } else {
             debugError(ajs.debug, '🟥 Login failed. No token in response');
             throw new Error('Login failed. No token in response');
@@ -117,6 +119,7 @@ const refresh = async (ajs: AjsStatic) => {
         if (response.status === 200 && response.data && response.data.token) {
             // Update the access token
             ajs.sS.setAccessToken(response.data.token);
+            ajs.onAccessTokenUpdate(response.data.token);
         } else {
             debugError(
                 ajs.debug,
