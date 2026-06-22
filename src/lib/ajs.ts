@@ -36,8 +36,8 @@ const ajsAttach = (axiosInstance: AxiosInstance) => {
     ajs.onLoginResponse = (response: AjsResponse) => response; // Handle login response
     ajs.onRefreshRequest = (requestConfig: AjsRequestConfig) => requestConfig; // Modify refresh request
     ajs.onRefreshResponse = (response: AjsResponse) => response; // Handle refresh response
-    ajs.onAccessTokenUpdate = (_token: string) => undefined;
-    ajs.onRefreshTokenUpdate = (_token: string) => undefined;
+    ajs.onAccessTokenUpdate = (token: string) => token;
+    ajs.onRefreshTokenUpdate = (token: string) => token;
 
     // Debug mode: disabled by default; enable via ajs.debug = true or AJS_DEBUG env variable
     if (ajs.debug === undefined) ajs.debug = false;
